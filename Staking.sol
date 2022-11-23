@@ -20,6 +20,7 @@ contract Staking is Ownable{
 
     Position position;
 
+    uint256 private constant DAY = 24 * 60 * 60;
     uint256 public totalAmountOfStaked;
     uint public currentPositionId;
     mapping(uint => Position) public positions;
@@ -178,20 +179,20 @@ contract Staking is Ownable{
     function checkPenalty(uint256 _time, uint256 _stakedAmount) private pure returns(uint) {
         uint256 stakedTime_ = _time;
         uint256 penalty;
-        uint day = stakedTime_.div(24*60*60);
+        uint numberOfDays = stakedTime_ / DAY;
         uint256 stakedToken = _stakedAmount;
 
-        if(day<10){
-            penalty = stakedToken.mul(0.2);
+        if(numberOfDays<10){
+            penalty = (stakedToken*2)/10;
             return penalty;
-        } else if(day < 20) {
-            penalty = stakedToken.mul(0.2);
+        } else if(numberOfDays < 20) {
+            penalty = (stakedToken*2)/10;
             return penalty;
-        } else if(day < 30) {
-            penalty = stakedToken.mul(0.2);
+        } else if(numberOfDays < 30) {
+            penalty = (stakedToken*2)/10;
             return penalty;
-        } else if(day < 60) {
-            penalty = stakedToken.mul(0.2);
+        } else if(numberOfDays < 60) {
+            penalty = (stakedToken*2)/10;
             return penalty;
         } else {
             return 0;
