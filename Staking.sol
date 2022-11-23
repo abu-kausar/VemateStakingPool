@@ -35,7 +35,7 @@ contract Staking is Ownable{
         require(vemateToken != address(0x0));
         require(owner() != address(0), "Owner must be set");
 
-        vemate = SimpleToken(vemateToken);
+        vemate = Vemate(vemateToken);
 
         currentPositionId = 0;
 
