@@ -139,12 +139,33 @@ contract Staking is Ownable{
         require(positions[positionId].open == true, "Already unstaked");
         
         uint256 time = getCurrentTime();
+        uint256 stakedTime = positions[positionId].createdDate;
+        uint256 timeDifference = time - stakedTime;
         require(time < positions[positionId].unlockDate, "already fullfilled the period");
 
         uint amount = positions[positionId].tokenStaked;
-        vemate.transfer(_msgSender(), amount);
+
+        uint256 penalty = checkPenalty(timeDifference, amount);
+
+        uint256 amountAfterPenalty = amount - penalty;
+        vemate.transfer(_msgSender(), amountAfterPenalty);
 
         totalAmountOfStaked -= amount;
         positions[positionId].open = false;
+    }
+
+    function checkPenalty(uint256 _time, uint256 _stakedAmount) private pure returns(uint) {
+        uint256 stakedTime_ = _time;
+        uint256 penalty;
+        uint day = stakedTime_.div(24*60*60);
+        uint256 stakedToken = _stakedAmount;
+
+        if(day<20){
+            penalty = stakedToken.mul(0.2);
+            return penalty;
+        } else if(day < 30) {
+            penalty = stakedToken.mul(0.2);
+            return penalty;
+        }
     }
 }
