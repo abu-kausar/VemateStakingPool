@@ -52,7 +52,7 @@ contract Staking is Ownable{
         require(tiers[numDays] > 0, "Mapping not found");
         require(getAmountLeftForPool()>= tokenAmount, "Not enough amount left for pool");
 
-        uint256 interest = calculateInterest(tiers[numDays], numDays, tokenAmount);
+        uint256 interest = calculateInterest(tiers[numDays], tokenAmount);
         uint256 total = tokenAmount + interest;
 
         require(getAmountLeftForPool()>= total, "Not enough amount left for pool");
@@ -78,11 +78,12 @@ contract Staking is Ownable{
 
     }
 
-    function calculateInterest(uint basisPoints, uint numDays, uint tokenAmount) 
+    function calculateInterest(uint basisPoints, uint256 tokenAmount) 
     private 
     pure 
     returns(uint) {
-        return basisPoints * tokenAmount;
+        uint256 totalInterestAmount = (basisPoints/1000) * tokenAmount; 
+        return totalInterestAmount;
     }
 
     function modifyLockPeriods(uint16 numDays, uint16 basisPoints) 
@@ -96,13 +97,6 @@ contract Staking is Ownable{
     view 
     returns(uint16[] memory){
         return lockPeriods;
-    }
-
-    function getInterestRate(uint numDays) 
-    external 
-    view 
-    returns(uint) {
-        tiers[numDays];
     }
 
     function getPositionById(uint positionId) 
