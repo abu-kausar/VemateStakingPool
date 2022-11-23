@@ -5,7 +5,7 @@ import "./VemateToken.sol";
 import "https://github.com/sadiq1971/sol-contracts/blob/main/lib/Ownable.sol";
 
 contract Staking is Ownable{
-    Vemate immutable private vemate;
+    Vemate private vemate;
 
     struct Position {
         uint positionId;
