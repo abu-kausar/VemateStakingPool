@@ -8,25 +8,29 @@ contract Staking is Ownable{
     Vemate private vemate;
 
     struct Position {
-        uint positionId;
-        address walletAddress;
-        uint createdDate;
-        uint unlockDate;
-        uint percentInterest;
-        uint tokenStaked;
-        uint tokenInterest;
         bool open;
+
+        address walletAddress;
+
+        uint256 positionId;
+        uint256 createdDate;
+        uint256 unlockDate;
+        uint256 percentInterest;
+        uint256 tokenStaked;
+        uint256 tokenInterest;
     }
 
     Position position;
 
-    uint256 private constant DAY = 24 * 60 * 60;
-    uint256 public totalAmountOfStaked;
-    uint public currentPositionId;
+    uint8[] public lockPeriods;
+
     mapping(uint => Position) public positions;
     mapping(address => uint[]) public positionIdsByAddress;
     mapping(uint => uint) public tiers;
-    uint[] public lockPeriods;
+
+    uint256 private constant DAY = 24 * 60 * 60;
+    uint256 public totalAmountOfStaked;
+    uint256 public currentPositionId;
 
     constructor(address payable vemateToken) 
     payable {
