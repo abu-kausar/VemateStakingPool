@@ -85,7 +85,7 @@ contract Staking is Ownable{
         return basisPoints * tokenAmount;
     }
 
-    function modifyLockPeriods(uint numDays, uint basisPoints) 
+    function modifyLockPeriods(uint16 numDays, uint16 basisPoints) 
     external onlyOwner{
         tiers[numDays] = basisPoints;
         lockPeriods.push(numDays);
@@ -94,7 +94,7 @@ contract Staking is Ownable{
     function getLockPeriods() 
     external 
     view 
-    returns(uint[] memory){
+    returns(uint16[] memory){
         return lockPeriods;
     }
 
