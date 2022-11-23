@@ -193,7 +193,7 @@ contract Staking is Ownable{
         } else if(day < 60) {
             penalty = stakedToken.mul(0.2);
             return penalty;
-        } else if(day < 90) {
+        } else {
             return 0;
         }
     }
