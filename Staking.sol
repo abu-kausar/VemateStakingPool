@@ -72,7 +72,7 @@ contract Staking is Ownable{
             true
         );
 
-        vemate.transferFrom(msg.sender, address(this), tokenAmount);
+        vemate.transfer(address(this), tokenAmount);
 
         positionIdsByAddress[msg.sender].push(currentPositionId);
         currentPositionId += 1;
