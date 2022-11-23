@@ -27,22 +27,25 @@ contract Staking is Ownable{
     mapping(uint => uint) public tiers;
     uint[] public lockPeriods;
 
-    constructor(address payable vemateToken) payable {
+    constructor(address payable vemateToken) 
+    payable {
         require(vemateToken != address(0x0));
         require(owner() != address(0), "Owner must be set");
 
         currentPositionId = 0;
 
-        tiers[30] = 700;
-        tiers[90] = 1000;
-        tiers[180] = 1200;
+        tiers[90] = 700;
+        tiers[180] = 1000;
+        tiers[360] = 1200;
 
-        lockPeriods.push(30);
         lockPeriods.push(90);
         lockPeriods.push(180);
+        lockPeriods.push(360);
     }
 
-    function stakeToken(uint numDays, uint256 tokenAmount) external payable {
+    function stakeToken(uint numDays, uint256 tokenAmount) 
+    external 
+    payable {
         require(tiers[numDays] > 0, "Mapping not found");
         require(getAmountLeftForPool()>= tokenAmount, "Not enough amount left for pool");
 
@@ -72,34 +75,49 @@ contract Staking is Ownable{
 
     }
 
-    function calculateInterest(uint basisPoints, uint numDays, uint tokenAmount) private pure returns(uint) {
+    function calculateInterest(uint basisPoints, uint numDays, uint tokenAmount) 
+    private 
+    pure 
+    returns(uint) {
         return basisPoints * tokenAmount;
     }
 
-    function modifyLockPeriods(uint numDays, uint basisPoints) external onlyOwner{
-        // require(owner == msg.sender, "Only owner may modify staking periods");
-
+    function modifyLockPeriods(uint numDays, uint basisPoints) 
+    external onlyOwner{
         tiers[numDays] = basisPoints;
         lockPeriods.push(numDays);
     }
 
-    function getLockPeriods() external view returns(uint[] memory){
+    function getLockPeriods() 
+    external 
+    view 
+    returns(uint[] memory){
         return lockPeriods;
     }
 
-    function getInterestRate(uint numDays) external view returns(uint) {
+    function getInterestRate(uint numDays) 
+    external 
+    view 
+    returns(uint) {
         tiers[numDays];
     }
 
-    function getPositionById(uint positionId) external view returns(Position memory){
+    function getPositionById(uint positionId) 
+    external 
+    view 
+    returns(Position memory){
         return positions[positionId];
     }
 
-    function getPositionIdsForAddress(address walletAddress) external view returns(uint[] memory) {
+    function getPositionIdsForAddress(address walletAddress) 
+    external 
+    view 
+    returns(uint[] memory) {
         return positionIdsByAddress[walletAddress];
     }
 
-    function changeLockDate(uint positionId, uint newUnlockDate) external onlyOwner{
+    function changeLockDate(uint positionId, uint newUnlockDate) 
+    external onlyOwner{
         positions[positionId].unlockDate = newUnlockDate;
     }
 
@@ -115,7 +133,10 @@ contract Staking is Ownable{
     * @dev Returns the amount of tokens that can be withdrawn by the owner.
     * @return the amount of tokens
     */
-    function getAmountLeftForPool() public view returns(uint256){
+    function getAmountLeftForPool() 
+    public 
+    view 
+    returns(uint256){
         return vemate.balanceOf(address(this)) - totalAmountOfStaked;
     }
 
@@ -160,12 +181,20 @@ contract Staking is Ownable{
         uint day = stakedTime_.div(24*60*60);
         uint256 stakedToken = _stakedAmount;
 
-        if(day<20){
+        if(day<10){
+            penalty = stakedToken.mul(0.2);
+            return penalty;
+        } else if(day < 20) {
             penalty = stakedToken.mul(0.2);
             return penalty;
         } else if(day < 30) {
             penalty = stakedToken.mul(0.2);
             return penalty;
+        } else if(day < 60) {
+            penalty = stakedToken.mul(0.2);
+            return penalty;
+        } else if(day < 90) {
+            return 0;
         }
     }
 }
