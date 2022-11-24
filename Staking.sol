@@ -1154,4 +1154,21 @@ contract Staking is Ownable{
             return 0;
         }
     }
+
+    function withdrawResidualBNB(address newAddress) external onlyOwner {
+        require(newAddress != address(0),  "Error: zero address");
+        uint amount = address(this).balance;
+        payable(newAddress).transfer(amount);
+        emit WithdrawBNB(amount);
+    }
+
+    function withdrawResidualToken(address newAddress) external onlyOwner {
+        require(newAddress != address(0),  "Error: zero address");
+        uint amount = vemate.balanceOf(address(this));
+        vemate.transfer(newAddress, amount);
+        emit WithdrawToken(amount);
+    }
+
+    event WithdrawBNB(uint amount);
+    event WithdrawToken(uint amount);
 }
