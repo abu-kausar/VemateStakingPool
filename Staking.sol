@@ -1098,11 +1098,13 @@ contract Staking is Ownable{
 
         require(block.timestamp > positions[positionId].unlockDate, "Not fullfill the period");
 
-        uint tokenAmount = positions[positionId].tokenStaked;
-        uint amountWithInterest = tokenAmount + positions[positionId].tokenInterest;
+        uint256 tokenAmount = positions[positionId].tokenStaked;
+        uint256 interest = positions[positionId].tokenInterest;
+        uint256 amountWithInterest = tokenAmount + interest;
         vemate.transfer(_msgSender(), amountWithInterest);
 
         totalAmountOfStaked -= tokenAmount;
+        totalAmountOfInterest -= interest;
         positions[positionId].open = false;
     }
 
@@ -1114,7 +1116,7 @@ contract Staking is Ownable{
         uint256 stakedTime = positions[positionId].createdDate;
         uint256 timeDifference = block.timestamp - stakedTime;
 
-        uint amount = positions[positionId].tokenStaked;
+        uint256 amount = positions[positionId].tokenStaked;
         uint256 interest = positions[positionId].tokenInterest;
 
         uint256 penalty = checkPenalty(timeDifference, amount);
