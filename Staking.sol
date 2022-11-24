@@ -1092,7 +1092,8 @@ contract Staking is Ownable{
         return vemate.balanceOf(address(this)) - totalAmountOfStaked - totalAmountOfInterest;
     }
 
-    function withdrawWithInterest(uint positionId) external {
+    function withdrawWithInterest(uint positionId) 
+    external {
         require(positions[positionId].walletAddress == msg.sender, "Only position creator may modify position");
         require(positions[positionId].open == true, "Already unstaked");
 
@@ -1108,7 +1109,8 @@ contract Staking is Ownable{
         positions[positionId].open = false;
     }
 
-    function emergencyWithdraw(uint positionId) external {
+    function emergencyWithdraw(uint positionId) 
+    external {
         require(positions[positionId].walletAddress == msg.sender, "Only position creator may modify position");
         require(positions[positionId].open == true, "Already unstaked");
         require(positions[positionId].unlockDate > block.timestamp, "already fullfilled the period");
@@ -1129,7 +1131,10 @@ contract Staking is Ownable{
         positions[positionId].open = false;
     }
 
-    function checkPenalty(uint256 _time, uint256 _stakedAmount) private pure returns(uint) {
+    function checkPenalty(uint256 _time, uint256 _stakedAmount) 
+    private 
+    pure 
+    returns(uint) {
         uint256 stakedTime_ = _time;
         uint256 penalty;
         uint numberOfDays = stakedTime_ / DAY;
@@ -1155,14 +1160,16 @@ contract Staking is Ownable{
         }
     }
 
-    function withdrawResidualBNB(address newAddress) external onlyOwner {
+    function withdrawResidualBNB(address newAddress) 
+    external onlyOwner {
         require(newAddress != address(0),  "Error: zero address");
         uint amount = address(this).balance;
         payable(newAddress).transfer(amount);
         emit WithdrawBNB(amount);
     }
 
-    function withdrawResidualToken(address newAddress) external onlyOwner {
+    function withdrawResidualToken(address newAddress) 
+    external onlyOwner {
         require(newAddress != address(0),  "Error: zero address");
         uint amount = vemate.balanceOf(address(this));
         vemate.transfer(newAddress, amount);
