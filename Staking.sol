@@ -996,7 +996,7 @@ contract Staking is Ownable{
     uint256 public totalAmountOfInterest = 0;
     uint256 public currentPositionId;
 
-    constructor(address payable vemateToken) payable {
+    constructor(address payable vemateToken) {
         require(vemateToken != address(0x0));
         require(owner() != address(0), "Owner must be set");
 
@@ -1115,6 +1115,7 @@ contract Staking is Ownable{
         uint256 timeDifference = block.timestamp - stakedTime;
 
         uint amount = positions[positionId].tokenStaked;
+        uint256 interest = positions[positionId].tokenInterest;
 
         uint256 penalty = checkPenalty(timeDifference, amount);
 
@@ -1122,6 +1123,7 @@ contract Staking is Ownable{
         vemate.transfer(_msgSender(), amountAfterPenalty);
 
         totalAmountOfStaked -= amount;
+        totalAmountOfInterest -= interest;
         positions[positionId].open = false;
     }
 
