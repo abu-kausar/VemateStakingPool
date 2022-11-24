@@ -989,10 +989,11 @@ contract Staking is Ownable{
 
     mapping(uint => Position) public positions;
     mapping(address => uint[]) public positionIdsByAddress;
-    mapping(uint => uint) public tiers;
+    mapping(uint256 => uint256) public tiers;
 
     uint256 private constant DAY = 24 * 60 * 60;
     uint256 public totalAmountOfStaked = 0;
+    uint256 public totalAmountOfInterest = 0;
     uint256 public currentPositionId;
 
     constructor(address payable vemateToken) payable {
@@ -1012,16 +1013,13 @@ contract Staking is Ownable{
         lockPeriods.push(360);
     }
 
-    function stakeToken(uint numDays, uint256 tokenAmount)
-    external 
+    function stakeToken(uint256 numDays, uint256 tokenAmount)
+    external
     {
         require(tiers[numDays] > 0, "Mapping not found");
-        require(getAmountLeftForPool() >= tokenAmount, "Not enough amount left for pool");
 
         uint256 interest = calculateInterest(tiers[numDays], tokenAmount);
-        uint256 total = tokenAmount + interest;
-
-        require(getAmountLeftForPool() >= total, "Not enough amount left for pool");
+        require(getAmountLeftForPool() >= interest, "Not enough amount left for pool");
 
         positions[currentPositionId] = Position (
             currentPositionId,
@@ -1039,14 +1037,15 @@ contract Staking is Ownable{
         positionIdsByAddress[msg.sender].push(currentPositionId);
         currentPositionId += 1;
         totalAmountOfStaked += tokenAmount;
+        totalAmountOfInterest += interest;
 
     }
 
-    function calculateInterest(uint basisPoints, uint256 tokenAmount) 
+    function calculateInterest(uint256 basisPoints, uint256 tokenAmount) 
     private 
     pure 
-    returns(uint) {
-        uint256 totalInterestAmount = (basisPoints/1000) * tokenAmount; 
+    returns(uint256) {
+        uint256 totalInterestAmount = (basisPoints * tokenAmount)/1000; 
         return totalInterestAmount;
     }
 
@@ -1090,7 +1089,7 @@ contract Staking is Ownable{
     public 
     view 
     returns(uint256){
-        return vemate.balanceOf(address(this)) - totalAmountOfStaked;
+        return vemate.balanceOf(address(this)) - totalAmountOfStaked - totalAmountOfInterest;
     }
 
     function withdrawWithInterest(uint positionId) external {
