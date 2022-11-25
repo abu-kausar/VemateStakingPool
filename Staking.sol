@@ -1189,6 +1189,8 @@ contract Staking is Ownable{
         emit WithdrawToken(amount);
     }
 
+    receive() external payable {}
+
     event WithdrawBNB(uint amount);
     event WithdrawToken(uint amount);
 }
