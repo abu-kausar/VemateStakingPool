@@ -970,7 +970,7 @@ contract Vemate is IBEP20, Ownable{
 }
 
 contract Staking is Ownable{
-    Vemate private vemate;
+    Vemate immutable private vemate;
 
     struct Position {
         uint256 positionId;
@@ -1013,6 +1013,14 @@ contract Staking is Ownable{
         lockPeriods.push(360);
     }
 
+    function addTokenToPool(uint256 _amount)
+    external onlyOwner
+    returns(bool){
+        require(vemate.allowance(_msgSender(), address(this)) >= _amount, "increase allowance");
+        bool successfullyAdded = vemate.transferFrom(_msgSender() ,address(this), _amount);
+        return successfullyAdded;
+    }
+
     function stakeToken(uint256 numDays, uint256 tokenAmount)
     external
     {
@@ -1022,6 +1030,7 @@ contract Staking is Ownable{
 
         uint256 interest = calculateInterest(tiers[numDays], tokenAmount);
         require(getAmountLeftForPool() >= interest, "Not enough amount left for pool");
+        require(vemate.allowance(_msgSender(), address(this)) >= tokenAmount, "increase allowance");
 
         positions[currentPositionId] = Position (
             currentPositionId,
@@ -1108,7 +1117,7 @@ contract Staking is Ownable{
         require(positions[positionId].open == true, "Already unstaked");
 
         uint256 time = getCurrentTime();
-        require(time > positions[positionId].unlockDate, "Not fullfill the period");
+        require(time >= positions[positionId].unlockDate, "Not fullfill the period");
 
         uint256 tokenAmount = positions[positionId].tokenStaked;
         uint256 interest = positions[positionId].tokenInterest;
