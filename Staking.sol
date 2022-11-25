@@ -1004,9 +1004,9 @@ contract Staking is Ownable{
 
         currentPositionId = 0;
 
-        tiers[90] = 70;
-        tiers[180] = 100;
-        tiers[360] = 120;
+        tiers[90] = 3;            // 3% interest for 3 months of staking
+        tiers[180] = 5;           // 5% interest for 6 months of staking
+        tiers[360] = 7;           // 7% interest for 12 months of staking
 
         lockPeriods.push(90);
         lockPeriods.push(180);
@@ -1018,14 +1018,16 @@ contract Staking is Ownable{
     {
         require(tiers[numDays] > 0, "Mapping not found");
 
+        uint256 time = getCurrentTime();
+
         uint256 interest = calculateInterest(tiers[numDays], tokenAmount);
         require(getAmountLeftForPool() >= interest, "Not enough amount left for pool");
 
         positions[currentPositionId] = Position (
             currentPositionId,
             msg.sender,
-            block.timestamp,
-            block.timestamp + (numDays * 1 days),
+            time,
+            time + (numDays * 1 days),
             tiers[numDays],
             tokenAmount,
             interest,
@@ -1045,7 +1047,7 @@ contract Staking is Ownable{
     private 
     pure 
     returns(uint256) {
-        uint256 totalInterestAmount = (basisPoints * tokenAmount)/1000; 
+        uint256 totalInterestAmount = (basisPoints * tokenAmount)/100; 
         return totalInterestAmount;
     }
 
@@ -1053,6 +1055,14 @@ contract Staking is Ownable{
     external onlyOwner{
         tiers[numDays] = basisPoints;
         lockPeriods.push(numDays);
+    }
+
+    function getCurrentTime()
+    internal
+    virtual
+    view
+    returns(uint256){
+        return block.timestamp;
     }
 
     function getLockPeriods() 
@@ -1097,7 +1107,8 @@ contract Staking is Ownable{
         require(positions[positionId].walletAddress == msg.sender, "Only position creator may modify position");
         require(positions[positionId].open == true, "Already unstaked");
 
-        require(block.timestamp > positions[positionId].unlockDate, "Not fullfill the period");
+        uint256 time = getCurrentTime();
+        require(time > positions[positionId].unlockDate, "Not fullfill the period");
 
         uint256 tokenAmount = positions[positionId].tokenStaked;
         uint256 interest = positions[positionId].tokenInterest;
@@ -1113,7 +1124,9 @@ contract Staking is Ownable{
     external {
         require(positions[positionId].walletAddress == msg.sender, "Only position creator may modify position");
         require(positions[positionId].open == true, "Already unstaked");
-        require(positions[positionId].unlockDate > block.timestamp, "already fullfilled the period");
+        
+        uint256 time = getCurrentTime();
+        require(positions[positionId].unlockDate > time, "already fullfilled the period");
         
         uint256 stakedTime = positions[positionId].createdDate;
         uint256 timeDifference = block.timestamp - stakedTime;
